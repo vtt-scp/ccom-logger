@@ -1,6 +1,7 @@
 import os
 import json
 import uuid
+import signal
 import threading
 from datetime import datetime
 from collections import deque
@@ -74,6 +75,23 @@ def logger(connection, manager, terminate):
 
 
 def main():
+    def stop_service(signum, frame):
+        """Stop connections gracefully"""
+
+        print("Received signal:", signum)
+
+        print("Disconnecting from MQTT broker")
+        mqtt.disconnect()
+
+        print("Emptying buffer to database...")
+        terminate.set()
+        logger_thread.join()
+
+        print("Closing database connection")
+        connection.close()
+
+        exit()
+
     # Connect to database and start logger thread
     connection = psycopg2.connect(
         user=DATABASE_USER,
@@ -97,20 +115,11 @@ def main():
     mqtt.connect(MQTT_BROKER_HOST, port=MQTT_BROKER_PORT)
     mqtt.subscribe("#", qos=2)
 
-    try:
-        mqtt.loop_forever()
-    except KeyboardInterrupt:
-        print("User interrupt")
-    finally:
-        print("Disconnecting from MQTT broker")
-        mqtt.disconnect()
+    # Set signal callback for stopping service gracefully
+    signal.signal(signal.SIGINT, stop_service)
+    signal.signal(signal.SIGTERM, stop_service)
 
-        print("Emptying buffer to database...")
-        terminate.set()
-        logger_thread.join()
-
-        print("Closing database connection")
-        connection.close()
+    mqtt.loop_forever()
 
 
 if __name__ == "__main__":
