@@ -1,12 +1,17 @@
 # ccom-logger
-Write data from CCOM messages to database
+Writes data from CCOM messages published to a MQTT broker to TimescaleDB database.
+
+CCOM types supported:
+- SingleDataMeasurement
 
 ## Dependencies
 
 - Python >=3.8
 - Poetry
+- TimeScaleDB running separately
+- Docker
 
-### Poetry (Python package/environment manager)
+### Install Poetry (Python package/environment manager)
 As instructed in https://python-poetry.org/docs/#installation  
 Download and run poetry installation script:
 ```
@@ -18,15 +23,14 @@ echo $'\n# Export Poetry to PATH\nexport PATH=$PATH:$HOME/.poetry/bin' >> ~/.bas
 ```
 May require relogin to terminal (or reboot).
 
-
-## Developer environment setup
-
 (Optional) Set Poetry to store environments within project folder.  
 This will create the .venv file during install to the project folder which is easier for VSCode to detect automatically.
 ```
 poetry config virtualenvs.in-project true
 ```
 
+
+## Developer environment setup
 Install dependencies and generate a virtual environment:
 ```
 poetry install
@@ -37,8 +41,30 @@ If you run into issues with installing psycopg2, you can try to install this dep
 sudo apt install libpq-dev
 ´´´
 
-
-## Activate virtual environment
+Activate virtual environment
 ```
 poetry shell
+```
+
+## Run service
+
+### In terminal for local development
+```
+python main.py
+```
+
+### In Docker container for production
+Export requirements
+```
+poetry export --without-hashes --format=requirements.txt > requirements.txt
+```
+
+Build Docker image
+```
+docker build -t ccom-logger .
+```
+
+Start Docker container from image
+```
+docker run --network host ccom-logger
 ```
