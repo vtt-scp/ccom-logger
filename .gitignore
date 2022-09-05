@@ -132,3 +132,4 @@ grafana.db
 grafana/data/
 
 .vscode
+requirements.txt
