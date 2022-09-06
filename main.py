@@ -28,7 +28,7 @@ MQTT_CLIENT_ID = os.getenv("MQTT_CLIENT_ID")
 MQTT_BROKER_HOST = os.getenv("MQTT_BROKER_HOST")
 MQTT_BROKER_PORT = int(os.getenv("MQTT_BROKER_PORT", 1883))
 
-BUFFER_MAX_SIZE = 10000
+BUFFER_MAX_SIZE = int(os.getenv("BUFFER_MAX_SIZE", 10000))
 # Init a data buffer between the MQTT client and database client
 buffer: deque = deque([], maxlen=BUFFER_MAX_SIZE)
 
