@@ -3,10 +3,9 @@ import json
 import uuid
 import signal
 import threading
-from datetime import datetime
+from datetime import datetime, timezone
 from collections import deque
 
-import pytz
 import psycopg2
 from pgcopy import CopyManager
 from paho.mqtt.client import Client
@@ -36,7 +35,7 @@ buffer: deque = deque([], maxlen=BUFFER_MAX_SIZE)
 def utc_rfc3339_to_datetime(date: str) -> datetime:
     """Convert UTC RFC 3339 datetime string to Python datetime object"""
 
-    return datetime.fromisoformat(date.replace("Z", "")).replace(tzinfo=pytz.UTC)
+    return datetime.fromisoformat(date.replace("Z", "")).replace(tzinfo=timezone.utc)
 
 
 def on_connect(client, userdata, flags, rc):
